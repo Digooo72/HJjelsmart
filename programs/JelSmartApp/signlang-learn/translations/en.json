@@ -1,0 +1,14 @@
+{
+  "title": "Homepage",
+  "welcome": "Welcome to",
+  "subtitle": "\"Language belongs to everyone!\"",
+  "manuals_title": "Manuals",
+  "manuals_text": "Application guides and study materials for sign language.",
+  "practice_title": "Practice",
+  "practice_text": "A large collection of sign language exercises.",
+  "model_title": "Mirror",
+  "model_text": "Basic sign language concepts and definitions.",
+  "learn_more": "Learn more",
+  "mirror2_title": "Mirror V2",
+  "mirror2_text": "Recognizes whole signs by camera, by category."
+}

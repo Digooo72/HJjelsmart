@@ -1,0 +1,26 @@
+<style>
+  footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+</style>
+
+<footer class="mt-5 py-4 bg-light">
+  <div class="container">
+    <div class="row text-center text-md-start">
+      <div class="col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
+        <p class="mb-0" style="font-size: 0.8em;">&copy; Informatika Határok Nélkül Egyesület | powered by Ihne & IT Lovagok</p>
+      </div>
+      <div class="col-md-4 d-flex align-items-center justify-content-center">
+        <p class="mb-0"></p>
+      </div>
+      <div class="col-md-4 d-flex align-items-center justify-content-center justify-content-md-end">
+        <a href="https://ihne.hu" target="_blank" rel="noopener">
+            <img src="{{ url_for('static', filename='images/ihne.png') }}" alt="Informatika Határok Nélkül Egyesület" style="height: 4em;">
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

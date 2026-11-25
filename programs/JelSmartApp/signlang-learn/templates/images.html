@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Media Gallery</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        img { width: 200px; margin: 10px; border-radius: 8px; }
+        video { width: 400px; margin: 10px; border-radius: 8px; }
+        .gallery { display: flex; flex-wrap: wrap; gap: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Image Gallery</h1>
+    <div class="gallery">
+        {% for image in images %}
+            <img src="{{ url_for('media', filename=image) }}" alt="image">
+        {% endfor %}
+    </div>
+
+    <h1>Video Gallery</h1>
+    <div class="gallery">
+        {% for video in videos %}
+            <video controls>
+                <source src="{{ url_for('media', filename=video) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,15 @@
+[Unit]
+Description=JelSmart Demo Server
+After=network.target
+
+[Service]
+User=ihne
+Group=www-data
+WorkingDirectory=/home/ihne/jelsmart-server
+Environment="PATH=/home/ihne/jelsmart-server/venv/bin"
+Environment="PYTHONPATH=/home/ihne/jelsmart-server/demo"
+ExecStart=/home/ihne/jelsmart-server/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:6720 app:application
+Restart=always
+Environment="URL_PREFIX="
+[Install]
+WantedBy=multi-user.target

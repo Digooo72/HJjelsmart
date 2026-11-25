@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Új feladat felvétele</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/video.js') }}"></script>
+</head>
+<body>
+
+<nav class="navbar">
+<a href="{{ url_for('login_bp.home') }}" class="brand">JelSmart Admin</a>
+  <div class="nav-group">
+    <div class="dropdown">
+      <button class="dropdown-btn">Gyakorlók &#9662;</button>
+      <div class="dropdown-content">
+        <a href="admin-beginner">Kezdő feladatok</a>
+        <a href="admin-semipro">Középhaladó feladatok</a>
+        <a href="admin-pro">Haladó feladatok</a>
+        
+      </div>
+    </div>
+    <a href="admin-listusers">Regisztrált felhasználók</a>
+    <a href="showmedia">Media</a>
+   
+    <form action="{{ url_for('login_bp.logout') }}" method="POST" style="margin:0;">
+      <button type="submit" class="logout" title="Kijelentkezés">Kifele &#x27A1</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+  <button onclick="history.back()" class="back-button" title="Vissza">&#8592; Vissza</button>
+
+  <h1>Új feladat felvétele</h1>
+  <form method="POST" action="{{ url_for('crud_bp.create') }}" enctype="multipart/form-data">
+
+    <label for="difficulty">Nehézség</label>
+    <select name="task_difficulty_id" id="difficulty" required>
+      <option value="">Válassz nehézséget</option>
+      {% for difficulty in difficulties %}
+        <option value="{{ difficulty.difficulty_id }}">{{ difficulty.difficulty_name }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="description_letter">Betű</label>
+    <input type="text" id="description_letter" name="description_letter" placeholder="Add meg a betűt!" required>
+
+    <label for="description">Leírás</label>
+    <textarea id="description" name="description" rows="3" placeholder="Add meg a hozzátartozó leírást!" required></textarea>
+
+    <label for="image">Kép feltöltése</label>
+    <input type="file" id="image" name="image" accept="image/*">
+    <div id="image-preview" class="preview"></div>
+    <input type="hidden" name="language_id" value="1">
+
+    <label for="video">Videó feltöltése</label>
+    <input type="file" id="video" name="video" accept="video/*">
+    <div id="video-preview" class="preview"></div>
+
+    <button type="submit">Rögzít</button>
+  </form>
+</div>
+
+</body>
+</html>

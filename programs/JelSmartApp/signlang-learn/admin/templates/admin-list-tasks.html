@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin List Users</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+
+<nav class="navbar">
+<a href="{{ url_for('login_bp.home') }}" class="brand">JelSmart Admin</a>
+  <div class="nav-group">
+    <div class="dropdown">
+      <button class="dropdown-btn">Gyakorlók &#9662;</button>
+      <div class="dropdown-content">
+        <a href="admin-beginner">Kezdő feladatok</a>
+        <a href="admin-semipro">Középhaladó feladatok</a>
+        <a href="admin-pro">Haladó feladatok</a>
+        
+      </div>
+    </div>
+    <a href="admin-listusers">Regisztrált felhasználók</a>
+    <a href="showmedia">Media</a>
+   
+    <form action="{{ url_for('login_bp.logout') }}" method="POST" style="margin:0;">
+      <button type="submit" class="logout" title="Kijelentkezés">Kifele &#x27A1</button>
+    </form>
+  </div>
+</nav>
+
+<button onclick="history.back()" class="back-button" title="Vissza">&#8592; Vissza</button>
+
+<h1>{{ difficulty }} feladatok szerkesztése</h1>
+
+{% if task %}
+  <div class="items-container">
+    {% for row in task %}
+      <div class="item">
+        <img src="{{ url_for('media_bp.images', filename=row.task_image) }}" alt="{{ row.task_description_letter }}">
+        <div class="item-info">
+          <div class="name">{{ row.task_description_letter }} - {{ row.task_description }}</div>
+          <div class="details">Szint: {{ row.task_difficulty_id }}</div>
+        </div>
+        <div class="item-actions">
+          <a href="{{ url_for('crud_bp.edit', task_id=row.task_id) }}" class="edit" title="Edit">&#9998;</a>
+          <form action="{{ url_for('crud_bp.delete', task_id=row.task_id, difficulty_id=row.task_difficulty_id) }}" method="POST">
+            <button type="submit">&#128465;</button> 
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <a href="{{ url_for('crud_bp.edit_task') }}" class="add-item">+</a>
+{% else %}
+  <p>Nem található feladat!</p>
+{% endif %}
+
+</body>
+</html>

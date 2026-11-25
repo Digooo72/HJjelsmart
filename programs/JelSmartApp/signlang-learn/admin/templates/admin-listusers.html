@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin_listusers</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+
+<nav class="navbar">
+<a href="{{ url_for('login_bp.home') }}" class="brand">JelSmart Admin</a>
+  <div class="nav-group">
+    <div class="dropdown">
+      <button class="dropdown-btn">Gyakorlók &#9662;</button>
+      <div class="dropdown-content">
+        <a href="admin-beginner">Kezdő feladatok</a>
+        <a href="admin-semipro">Középhaladó feladatok</a>
+        <a href="admin-pro">Haladó feladatok</a>
+        
+      </div>
+    </div>
+    <a href="admin-listusers">Regisztrált felhasználók</a>
+    <a href="showmedia">Media</a>
+   
+    <form action="{{ url_for('login_bp.logout') }}" method="POST" style="margin:0;">
+      <button type="submit" class="logout" title="Kijelentkezés">Kifele &#x27A1</button>
+    </form>
+  </div>
+</nav>
+
+  <h1>Majd lesz felhasznalo is</h1>
+
+</body>
+</html>

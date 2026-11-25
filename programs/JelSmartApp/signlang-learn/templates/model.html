@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="static/images/favicon-32x32.png" sizes="32x32"/>
+    <link rel="icon" type="image/png" href="static/images/favicon-16x16.png" sizes="16x16"/>
+    <title>Tükör</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: #f0f2f5 !important;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border-color: #ffffff !important;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn {
+            background-color: #007bff;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600 !important;
+            border-radius: 25px !important;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        h1.display-4 img {
+            height: 0.8em;
+            margin-bottom: 0.2em;
+        }
+
+        .container {
+            flex: 1;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static',  filename='img/favicon.ico') }}">
+</head>
+<body>
+{% include 'navbar.html' %}
+<div class="container mt-5">
+    <h2 class="mb-4">Tükör</h2>
+    <p>Gyakorold a daktil jeleket valós időben!</p>
+    <video id="mirrorVideo" autoplay playsinline class="img-fluid mb-3"></video>
+    <div id="result" class="alert
+        alert-info" role="alert"></div>
+    <button id="startBtn" class="btn btn-primary me-2">Indítás</button>
+    <button id="stopBtn"
+            class="btn btn-secondary">Leállítás
+    </button>
+</div>
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{  url_for('static', filename='js/dactyl.js') }}"></script>
+</body>
+</html>

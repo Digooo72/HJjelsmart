@@ -1,0 +1,75 @@
+<style>
+  .navbar-brand img {
+    height: 1.6em;
+  }
+  .navbar-separator {
+    border-left: 1px solid #ccc;
+    height: 2em;
+    margin: 0 1rem;
+  }
+  @media (max-width: 991px) {
+    .navbar-separator {
+      display: none;
+    }
+  }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container">
+    <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='images/jelsmart_small.png') }}" alt="Jelsmart"></a>
+    <div class="navbar-separator"></div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item me-3">
+          <a class="nav-link" href="/kezikonyvek">{{ texts.manuals_title }}</a>
+        </li>
+        <li class="nav-item me-3">
+          <a class="nav-link" href="/gyakorlok">{{ texts.practice_title }}</a>
+        </li>
+        <li class="nav-item me-3">
+          <a class="nav-link" href="/dactyl">{{ texts.model_title }}</a>
+        </li>
+        <li class="nav-item me-3">
+          <a class="nav-link" href="/demo/">Tükör V2</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <select id="language-selector" class="form-select">
+          <option value="hu" {% if lang == 'hu' %}selected{% endif %}>Hungarian</option>
+          <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+          <option value="de" {% if lang == 'de' %}selected{% endif %}>German</option>
+        </select>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.getElementById("language-selector").addEventListener("change", function() {
+    const lang = this.value;
+    const currentUrl = window.location.href.split('?')[0];
+    window.location.href = currentUrl + "?lang=" + lang;
+  });
+
+  document.addEventListener("DOMContentLoaded", function() {
+    const langParam = new URLSearchParams(window.location.search).get("lang");
+    if (langParam) {
+      document.querySelectorAll(".navbar-nav .nav-link").forEach(function(link) {
+        const url = new URL(link.href, window.location.origin);
+        url.searchParams.set("lang", langParam);
+        link.href = url.toString();
+      });
+
+      const logoLink = document.querySelector(".navbar-brand");
+      if (logoLink) {
+        const logoUrl = new URL(logoLink.href, window.location.origin);
+        logoUrl.searchParams.set("lang", langParam);
+        logoLink.href = logoUrl.toString();
+      }
+    }
+  });
+</script>
+

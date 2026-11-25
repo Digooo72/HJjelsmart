@@ -1,0 +1,16 @@
+[Unit]
+Description=Gunicorn settings for JelSmart Python Server
+After=network.target
+
+[Service]
+User=ihne
+Group=www-data
+WorkingDirectory=/home/ihne/jelsmart-server/programs/JelSmartApp/signlang-learn
+Environment="DATABASE_URL=postgresql+psycopg2://dev:ihnedev@server.jelsmart.hu/jelsmartdb"
+Environment="SECRET_KEY=ihnesecret123"
+Environment="PYTHONPATH=/home/ihne/jelsmart-server/demo"
+ExecStart=/home/ihne/jelsmart-server/programs/JelSmartApp/signlang-learn/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:6710 "app:create_app()"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

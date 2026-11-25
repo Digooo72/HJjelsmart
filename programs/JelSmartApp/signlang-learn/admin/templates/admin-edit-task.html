@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <title>Feladat szerkesztése</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/video.js') }}"></script>
+</head>
+<body>
+
+
+<nav class="navbar">
+<a href="{{ url_for('login_bp.home') }}" class="brand">JelSmart Admin</a>
+  <div class="nav-group">
+    <div class="dropdown">
+      <button class="dropdown-btn">Gyakorlók &#9662;</button>
+      <div class="dropdown-content">
+        <a href="admin-beginner">Kezdő feladatok</a>
+        <a href="admin-semipro">Középhaladó feladatok</a>
+        <a href="admin-pro">Haladó feladatok</a>
+        
+      </div>
+    </div>
+    <a href="admin-listusers">Regisztrált felhasználók</a>
+    <a href="showmedia">Media</a>
+   
+    <form action="{{ url_for('login_bp.logout') }}" method="POST" style="margin:0;">
+      <button type="submit" class="logout" title="Kijelentkezés">Kifele &#x27A1</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+  <button onclick="history.back()" class="back-button" title="Vissza">&#8592; Vissza</button>
+
+  <h1>Feladat szerkesztése</h1>
+  <form method="POST" enctype="multipart/form-data">
+    <label for="difficulty">Nehézség</label>
+    <select name="task_difficulty_id" id="difficulty" required>
+      {% for difficulty in difficulties %}
+        <option value="{{ difficulty.difficulty_id }}"
+          {% if task.task_difficulty_id == difficulty.difficulty_id %}selected{% endif %}>
+          {{ difficulty.difficulty_name }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <label for="description_letter">Betű</label>
+    <input type="text" id="description_letter" name="description_letter"
+           value="{{ task.task_description_letter }}" required>
+
+    <label for="description">Leírás</label>
+    <textarea id="description" name="description" rows="3" required>{{ task.task_description }}</textarea>
+
+    <label for="image">Kép (új feltöltés esetén cseréli)</label>
+    {% if task.task_image %}
+      <div class="preview">
+        <img src="{{ url_for('media_bp.images', filename=task.task_image) }}" alt="Jelenlegi kép">
+      </div>
+    {% endif %}
+    <input type="file" id="image" name="image" accept="image/*">
+
+    <input type="hidden" name="language_id" value="{{ task.task_language_id }}">
+
+    <label for="video">Videó (új feltöltés esetén cseréli)</label>
+    {% if task.task_video_url %}
+      <div class="preview">
+        <video src="{{ url_for('media_bp.videos', filename=task.task_video_url) }}" controls></video>
+      </div>
+    {% endif %}
+    <input type="file" id="video" name="video" accept="video/*">
+
+    <button type="submit">Mentés</button>
+  </form>
+</div>
+
+</body>
+</html>
