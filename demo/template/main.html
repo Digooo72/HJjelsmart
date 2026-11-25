@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tükör V2 – JelSmart</title>
+  <link rel="icon" type="image/png" href="/static/images/favicon-32x32.png" sizes="32x32">
+  <link rel="icon" type="image/png" href="/static/images/favicon-16x16.png" sizes="16x16">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* --- a jelsmart.hu közös kinézete (index.html / model.html) --- */
+    body { display: flex; flex-direction: column; min-height: 100vh; background: #f0f2f5 !important; }
+    .container.main { flex: 1; }
+    .card { background: #fff; border-radius: 12px !important; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: #fff !important; }
+    .btn { border: none; padding: 0.6rem 1.2rem; font-weight: 600 !important; border-radius: 25px !important; transition: background-color 0.3s ease; }
+    .navbar-brand img { height: 1.6em; }
+    .navbar-separator { border-left: 1px solid #ccc; height: 2em; margin: 0 1rem; }
+    @media (max-width: 991px) { .navbar-separator { display: none; } }
+    footer { margin-top: auto; }
+
+    /* --- Tükör V2 elemek --- */
+    #categorySelect { max-width: 320px; margin: 0 auto; border-radius: 25px; border: 2px solid #007bff; color: #007bff; font-weight: 600; }
+    #videoWrap { position: relative; display: inline-block; width: 100%; max-width: 480px; }
+    #video { width: 100%; height: auto; border-radius: 12px; border: 4px solid #dee2e6; transform: scaleX(-1); display: block; background: #000; }
+    #videoWrap.recording #video { border-color: #dc3545; box-shadow: 0 0 0 4px rgba(220,53,69,0.3); }
+
+    #recordBtn { background: #dc3545; color: #fff; padding: 0.7rem 2rem; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 8px; }
+    #recordBtn:hover { background: #b02a37; color: #fff; }
+    #recordBtn.recording { background: #6c757d; }
+    #recordDot { width: 10px; height: 10px; border-radius: 50%; background: #fff; display: inline-block; }
+    #recordBtn.recording #recordDot { animation: blink 1s infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+    #recordTimer { font-size: 0.85rem; color: #dc3545; min-height: 1.2em; font-variant-numeric: tabular-nums; }
+
+    #currentLabel { font-size: 0.95rem; color: #6c757d; }
+    #currentShown { font-size: 2rem; font-weight: 700; min-height: 1.4em; color: #212529; }
+    #currentShown.uncertain { color: #adb5bd; }
+    #currentShown.thinking { color: #d39e00; font-style: italic; font-size: 1.2rem; }
+    #confidenceBar { width: 100%; max-width: 300px; height: 10px; background: #e9ecef; margin: 10px auto 0; border-radius: 5px; overflow: hidden; }
+    #confidenceFill { height: 100%; width: 0%; background: #007bff; transition: width 0.2s; }
+    #methodBadge { font-size: 0.75rem; color: #adb5bd; min-height: 1em; margin-top: 6px; }
+
+    #labelsGrid { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+    .labelChip { background: #fff; border: 2px solid #007bff; color: #007bff; border-radius: 20px; padding: 4px 14px; font-size: 0.9rem; font-weight: 600; }
+    #labelsEmpty { color: #6c757d; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light">
+  <div class="container">
+    <a class="navbar-brand" href="/"><img src="/static/images/jelsmart_small.png" alt="Jelsmart"></a>
+    <div class="navbar-separator"></div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item me-3"><a class="nav-link" href="/kezikonyvek">Kézikönyvek</a></li>
+        <li class="nav-item me-3"><a class="nav-link" href="/gyakorlok">Gyakorlók</a></li>
+        <li class="nav-item me-3"><a class="nav-link" href="/dactyl">Tükör</a></li>
+        <li class="nav-item me-3"><a class="nav-link active fw-semibold" aria-current="page" href="/demo/">Tükör V2</a></li>
+      </ul>
+      <form class="d-flex">
+        <select id="language-selector" class="form-select">
+          <option value="hu" selected>Hungarian</option>
+          <option value="en">English</option>
+          <option value="de">German</option>
+        </select>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="container main mt-5">
+  <div class="text-center mb-4">
+    <h2 class="mb-2">Tükör V2</h2>
+    <p class="lead mb-0">Mutass egy jelet a kamerának – a rendszer megmondja, mit lát.</p>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card p-4 text-center" id="demoCard">
+
+        <div id="categoryWrap" class="mb-3">
+          <label for="categorySelect" class="form-label text-muted small mb-1">Kategória</label>
+          <select id="categorySelect" class="form-select"></select>
+        </div>
+
+        <div><div id="videoWrap">
+          <video id="video" width="480" height="360" autoplay playsinline></video>
+        </div></div>
+
+        <div class="mt-3">
+          <button id="recordBtn" class="btn">
+            <span id="recordDot"></span>
+            <span id="recordBtnLabel">Felvétel</span>
+          </button>
+        </div>
+        <div id="recordTimer" class="mt-1"></div>
+
+        <div id="currentWrap" class="mt-3">
+          <div id="currentLabel">Felismert jel:</div>
+          <div id="currentShown">-</div>
+        </div>
+        <div id="confidenceBar"><div id="confidenceFill"></div></div>
+        <div id="methodBadge"></div>
+
+        <canvas id="canvas" width="480" height="360" style="display:none;"></canvas>
+      </div>
+
+      <div class="card p-4 mt-4 text-center" id="labelsSection">
+        <h5 class="mb-1">Az aktuális kategóriában elérhető jelek</h5>
+        <div id="labelsCount" class="text-muted small mb-3"></div>
+        <div id="labelsGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="mt-5 py-4 bg-light">
+  <div class="container">
+    <div class="row text-center text-md-start">
+      <div class="col-md-4 d-flex align-items-center justify-content-center justify-content-md-start">
+        <p class="mb-0" style="font-size: 0.8em;">&copy; Informatika Határok Nélkül Egyesület | powered by Ihne &amp; IT Lovagok</p>
+      </div>
+      <div class="col-md-4"></div>
+      <div class="col-md-4 d-flex align-items-center justify-content-center justify-content-md-end">
+        <a href="https://ihne.hu" target="_blank" rel="noopener">
+          <img src="/static/images/ihne.png" alt="Informatika Határok Nélkül Egyesület" style="height: 4em;">
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // nyelvválasztó: ugyanúgy viselkedik, mint az oldal többi részén
+  document.getElementById("language-selector").addEventListener("change", function () {
+    window.location.href = "/?lang=" + this.value;
+  });
+</script>
+<script>
+const API_BASE = '/demo/demo/';
+
+const video          = document.getElementById('video');
+const canvas         = document.getElementById('canvas');
+const categorySelect = document.getElementById('categorySelect');
+const currentShownEl = document.getElementById('currentShown');
+const confidenceFill = document.getElementById('confidenceFill');
+const methodBadge    = document.getElementById('methodBadge');
+const recordBtn      = document.getElementById('recordBtn');
+const recordBtnLabel = document.getElementById('recordBtnLabel');
+const recordTimer    = document.getElementById('recordTimer');
+const videoWrap      = document.getElementById('videoWrap');
+const labelsGrid     = document.getElementById('labelsGrid');
+const labelsCount    = document.getElementById('labelsCount');
+
+let category = 'all';
+
+// --- recording state ---
+let isRecording    = false;
+let recordedFrames = [];       // array of Blob (JPEG frames)
+let captureInterval= null;
+let timerInterval  = null;
+const FRAME_INTERVAL_MS  = 100;   // capture frame every 100ms = ~10fps
+const MAX_RECORD_SECS    = 3;     // auto-stop after 3 seconds
+
+// ---- webcam ----
+navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => { video.srcObject = stream; })
+    .catch(err  => { currentShownEl.textContent = "Kamera hiba: " + err; });
+
+// ---- categories ----
+async function loadCategories() {
+    const res  = await fetch(API_BASE + 'categories');
+    const data = await res.json();
+    categorySelect.innerHTML = '';
+    data.categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value       = cat.id;
+        opt.textContent = `${cat.label} (${cat.count})`;
+        categorySelect.appendChild(opt);
+    });
+    if (data.categories.length > 0) {
+        category = categorySelect.value;
+    }
+    loadLabels();
+}
+loadCategories();
+
+categorySelect.addEventListener('change', async () => {
+    category = categorySelect.value;
+    await fetch(API_BASE + 'reset', { method: 'POST' });
+    clearResult();
+    loadLabels();
+});
+
+// ---- available labels list ----
+async function loadLabels() {
+    labelsGrid.innerHTML  = '';
+    labelsCount.textContent = 'Betöltés...';
+    try {
+        const res  = await fetch(API_BASE + 'labels?category=' + encodeURIComponent(category));
+        const data = await res.json();
+        const labels = data.labels || [];
+
+        if (labels.length === 0) {
+            labelsCount.textContent = '';
+            labelsGrid.innerHTML = '<div id="labelsEmpty">Nincs elérhető jel ebben a kategóriában</div>';
+            return;
+        }
+
+        labelsCount.textContent = `${labels.length} jel`;
+        labels.forEach(label => {
+            const chip = document.createElement('span');
+            chip.className   = 'labelChip';
+            chip.textContent = label;
+            labelsGrid.appendChild(chip);
+        });
+    } catch (err) {
+        labelsCount.textContent = '';
+        labelsGrid.innerHTML = '<div id="labelsEmpty">Hiba a jelek betöltésekor</div>';
+    }
+}
+
+function clearResult() {
+    currentShownEl.textContent = '-';
+    currentShownEl.className   = '';
+    confidenceFill.style.width = '0%';
+    methodBadge.textContent    = '';
+}
+
+// ---- recording ----
+recordBtn.addEventListener('click', () => {
+    if (isRecording) {
+        stopRecording();
+    } else {
+        startRecording();
+    }
+});
+
+function startRecording() {
+    if (isRecording) return;
+    isRecording     = true;
+    recordedFrames  = [];
+    videoWrap.classList.add('recording');
+    recordBtn.classList.add('recording');
+    recordBtnLabel.textContent = 'Stop';
+    clearResult();
+    currentShownEl.textContent = '...';
+    currentShownEl.className   = '';
+
+    let elapsed = 0;
+    recordTimer.textContent = `${MAX_RECORD_SECS}.0s`;
+
+    // capture frames
+    captureInterval = setInterval(() => {
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => { if (blob) recordedFrames.push(blob); }, 'image/jpeg', 0.85);
+    }, FRAME_INTERVAL_MS);
+
+    // countdown
+    timerInterval = setInterval(() => {
+        elapsed += 0.1;
+        const remaining = Math.max(0, MAX_RECORD_SECS - elapsed);
+        recordTimer.textContent = `${remaining.toFixed(1)}s`;
+        if (elapsed >= MAX_RECORD_SECS) stopRecording();
+    }, 100);
+}
+
+function stopRecording() {
+    if (!isRecording) return;
+    isRecording = false;
+    clearInterval(captureInterval);
+    clearInterval(timerInterval);
+    captureInterval = null;
+    timerInterval   = null;
+
+    videoWrap.classList.remove('recording');
+    recordBtn.classList.remove('recording');
+    recordBtnLabel.textContent  = 'Felvétel';
+    recordTimer.textContent     = '';
+
+    sendClip();
+}
+
+async function sendClip() {
+    if (recordedFrames.length === 0) {
+        currentShownEl.textContent = 'Nincs kép';
+        return;
+    }
+
+    currentShownEl.textContent = 'Elemzés...';
+    currentShownEl.className   = 'thinking';
+    confidenceFill.style.width = '0%';
+    methodBadge.textContent    = '';
+
+    // The landmark-only path is fast, but the vision fallback (triggered
+    // when confidence is low) can take much longer - without this, the UI
+    // just sits on a static "Elemzés..." for up to a minute or more and
+    // looks frozen. Nudge the message forward the longer it runs.
+    let analysisElapsed = 0;
+    const analysisStatusInterval = setInterval(() => {
+        analysisElapsed += 1;
+        if (analysisElapsed === 4) {
+            currentShownEl.textContent = 'Elemzés... (részletesebb ellenőrzés folyamatban)';
+        } else if (analysisElapsed === 15) {
+            currentShownEl.textContent = 'Még mindig dolgozom rajta, ez eltarthat egy percig...';
+        }
+    }, 1000);
+
+    const formData = new FormData();
+    recordedFrames.forEach((blob, i) => {
+        formData.append('frames', blob, `frame_${String(i).padStart(4,'0')}.jpg`);
+    });
+    formData.append('category', category);
+
+    try {
+        const res  = await fetch(API_BASE + 'analyze_clip', { method: 'POST', body: formData });
+        const raw  = await res.text();          // read as text first, not json()
+        clearInterval(analysisStatusInterval);
+
+        let result;
+        try {
+            result = JSON.parse(raw);
+        } catch (parseErr) {
+            // Not valid JSON - show what the server actually sent back
+            // so we can see it on-screen without dev tools.
+            currentShownEl.textContent = 'Nem JSON válasz - lásd lent';
+            currentShownEl.className   = 'uncertain';
+            methodBadge.textContent    = `status ${res.status}`;
+            let dbg = document.getElementById('debugOutput');
+            if (!dbg) {
+                dbg = document.createElement('pre');
+                dbg.id = 'debugOutput';
+                dbg.style.cssText = 'text-align:left; max-width:90vw; margin:20px auto; padding:10px; background:#222; color:#0f0; overflow:auto; font-size:11px; white-space:pre-wrap; word-break:break-all;';
+                document.getElementById('demoCard').appendChild(dbg);
+            }
+            dbg.textContent = raw.slice(0, 3000);
+            return;
+        }
+
+        confidenceFill.style.width = (result.confidence * 100) + '%';
+        methodBadge.textContent    = result.method ? `(${result.method})` : '';
+
+        if (result.predicted) {
+            currentShownEl.textContent = result.predicted;
+            currentShownEl.className   = '';
+        } else {
+            currentShownEl.textContent = '?';
+            currentShownEl.className   = 'uncertain';
+        }
+
+    } catch (err) {
+        clearInterval(analysisStatusInterval);
+        currentShownEl.textContent = 'Hiba: ' + err;
+        currentShownEl.className   = 'uncertain';
+    }
+}
+</script>
+</body>
+</html>

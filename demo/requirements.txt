@@ -1,0 +1,10 @@
+analyzer
+flask
+opencv-python
+numpy
+mediapipe
+tensorflow
+scikit-learn
+deep-translator
+opencv-python
+requests
